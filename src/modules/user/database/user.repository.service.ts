@@ -2,7 +2,7 @@ import { Injectable } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
 import { Model } from "mongoose";
 import { UserRepositoryPort } from "./user.repository.port";
-import { UserMongoEntity, UserDocument } from "./model/user.mongo-entity";
+import { UserMongoEntity } from "./model/user.mongo-entity";
 import { BaseRepository } from "src/core/base-classes/infra/repository.base";
 import { UserEntity } from "../domain/user.entity";
 import { UserMongoMapper } from "./model/user.mongo-mapper";
