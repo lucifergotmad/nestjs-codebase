@@ -1,0 +1,19 @@
+version: '3.4'
+
+services:
+  zerostarted:
+    image: zerostarted
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    environment:
+      MODE: production
+      PORT: 3333
+      SECURE: 0
+      DATABASE_CONNECTION_URI: mongodb://localhost:37018
+      DATABASE_NAME: test
+      DATABASE_USERNAME:
+      DATABASE_PASSWORD:
+      JWT_SECRET_KEY: H0sh1N
+    ports:
+      - 3000:3000

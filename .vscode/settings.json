@@ -1,0 +1,232 @@
+{
+    // file templates plugin
+    "folderTemplates.fileTemplates": {
+        "create-mongo-entity": [
+            "import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';",
+            "import { Document } from 'mongoose';",
+            "import { BaseMongoEntity } from 'src/core/base-classes/infra/mongo-entity.base';",
+            "",
+            "@Schema({ collection: '<FTName | plural>' })",
+            "export class <FTName | pascalcase>MongoEntity extends BaseMongoEntity<typeof <FTName | pascalcase>MongoEntity> {",
+            "  // Put your schema here",
+            "  ",
+            "}",
+            "",
+            "export const <FTName | pascalcase>Schema = SchemaFactory.createForClass(<FTName | pascalcase>MongoEntity);",
+            "export const <FTName | pascalcase>Model = [{ name: <FTName | pascalcase>MongoEntity.name, schema: <FTName | pascalcase>Schema }];",
+            "",
+            "export type <FTName | pascalcase>Document = <FTName | pascalcase>MongoEntity & Document;",
+            ""
+        ],
+        "create-entity": [
+            "import { AggregateRoot } from 'src/core/base-classes/domain/aggregate-root';",
+            "",
+            "export interface <FTName | pascalcase>Props {",
+            "  // put field interface here",
+            "  name: string",
+            "}",
+            "",
+            "export class <FTName | pascalcase>Entity extends AggregateRoot<<FTName | pascalcase>Props> {",
+            "  constructor(props: <FTName | pascalcase>Props) {",
+            "    super(props);",
+            "  }",
+            "",
+            "  static create(props: <FTName | pascalcase>Props) {",
+            "    return new <FTName | pascalcase>Entity(props);",
+            "  }",
+            "}",
+            ""
+        ],
+        "create-mapper": [
+            "import {",
+            "  DbMapper,",
+            "  MongoEntityProps,",
+            "} from 'src/core/base-classes/domain/db-mapper';",
+            "import { <FTName | pascalcase>Entity } from '../../domain/<FTName | paramcase>.entity'",
+            "import { <FTName | pascalcase>MongoEntity } from './<FTName | paramcase>.mongo-entity'",
+            "",
+            "export class <FTName | pascalcase>MongoMapper extends DbMapper<<FTName | pascalcase>Entity, <FTName | pascalcase>MongoEntity> {",
+            "  protected toMongoProps(",
+            "\tentity: <FTName | pascalcase>Entity",
+            "  ): MongoEntityProps<<FTName | pascalcase>MongoEntity> {",
+            "\tconst props = entity.getPropsCopy();",
+            "",
+            "\tconst mongoProps: MongoEntityProps<<FTName | pascalcase>MongoEntity> = {",
+            "\t  // put field here",
+            "\t}",
+            "\treturn mongoProps",
+            "\t}",
+            "}",
+            ""
+        ],
+        "create-port-repository": [
+            "import { BaseRepositoryPort } from 'src/core/ports/repository.base.port';",
+            "import { <FTName | pascalcase>MongoEntity } from './model/<FTName | paramcase>.mongo-entity';",
+            "import { <FTName | pascalcase>Entity } from '../domain/<FTName | paramcase>.entity';",
+            "",
+            "export interface <FTName | pascalcase>RepositoryPort",
+            "  extends BaseRepositoryPort<<FTName | pascalcase>MongoEntity, <FTName | pascalcase>Entity> {",
+            "\t__init__(): void",
+            "}",
+            ""
+        ],
+        "create-repo": [
+            "import { Injectable } from '@nestjs/common';",
+            "import { InjectModel } from '@nestjs/mongoose';",
+            "import { BaseRepository } from 'src/core/base-classes/infra/repository.base';",
+            "import { Model } from 'mongoose';",
+            "import { <FTName | pascalcase>MongoEntity, <FTName | pascalcase>Document } from './model/<FTName | paramcase>.mongo-entity';",
+            "import { <FTName | pascalcase>Entity } from '../domain/<FTName | paramcase>.entity';",
+            "import { <FTName | pascalcase>RepositoryPort } from './<FTName | paramcase>.repository.port';",
+            "import { <FTName | pascalcase>MongoMapper } from './model/<FTName | paramcase>.mongo-mapper';",
+            "",
+            "@Injectable()",
+            "export class <FTName | pascalcase>Repository",
+            "  extends BaseRepository<<FTName | pascalcase>MongoEntity, <FTName | pascalcase>Entity>",
+            "  implements <FTName | pascalcase>RepositoryPort {",
+            "  constructor(",
+            "    @InjectModel(<FTName | pascalcase>MongoEntity.name) private <FTName | pascalcase>Model: Model<<FTName | pascalcase>Document>",
+            "  ) {",
+            "    super(<FTName | pascalcase>Model, new <FTName | pascalcase>MongoMapper(<FTName | pascalcase>Entity, <FTName | pascalcase>MongoEntity))",
+            "  }",
+            "",
+            "  // fill me with beautiful method!",
+            "  __init__(): void {",
+            "    //replace this lonely method!",
+            "  }",
+            "}",
+            ""
+        ],
+        "create-provider-repository": [
+            "import { Inject, Provider } from '@nestjs/common';",
+            "import { <FTName | pascalcase>Repository } from './<FTName | paramcase>.repository.service';",
+            "",
+            "export const Inject<FTName | pascalcase>Repository = Inject(<FTName | pascalcase>Repository.name);",
+            "",
+            "export const <FTName | camelCase>RepositoryProvider: Provider = {",
+            "  provide: <FTName | pascalcase>Repository.name,",
+            "  useClass: <FTName | pascalcase>Repository,",
+            "}"
+        ],
+        "create-module-repository": [
+            "import { Module } from '@nestjs/common';",
+            "import { MongooseModule } from '@nestjs/mongoose';",
+            "import { <FTName | pascalcase>Model } from './model/<FTName | paramcase>.mongo-entity';",
+            "import { <FTName | camelcase>RepositoryProvider } from './<FTName | paramcase>.repository.provider';",
+            "",
+            "@Module({",
+            "  imports: [MongooseModule.forFeature(<FTName | pascalcase>Model)],",
+            "  providers: [<FTName | camelcase>RepositoryProvider],",
+            "  exports: [<FTName | camelcase>RepositoryProvider],",
+            "})",
+            "export class <FTName | pascalcase>RepositoryModule {}",
+            ""
+        ],
+        "create provider usecase": [
+            "import { Provider } from '@nestjs/common';",
+            "",
+            "export const <FTName | camelcase>UseCaseProvider: Provider[] = [];",
+            ""
+        ],
+        "create module usecase": [
+            "import { Module } from '@nestjs/common';",
+            "import { <FTName | pascalcase>RepositoryModule } from '../database/<FTName | paramcase>.repository.module';",
+            "import { <FTName | camelcase>UseCaseProvider } from './<FTName | paramcase>.use-case.provider';",
+            "",
+            "@Module({",
+            "  imports: [<FTName | pascalcase>RepositoryModule],",
+            "  exports: <FTName | camelcase>UseCaseProvider,",
+            "  providers: <FTName | camelcase>UseCaseProvider,",
+            "})",
+            "export class <FTName | pascalcase>UseCaseModule {}",
+            ""
+        ],
+        "create controller": [
+            "import { ControllerProperty } from 'src/core/decorators/controller-decorators/class-decorators/controller-property.decorator';",
+            "",
+            "@ControllerProperty('v1/<FTName | paramcase?plural>', '<FTName | plural?replace('-',' ')?capitalcase>')",
+            "export class <FTName | pascalcase>Controller {",
+            "  constructor() {",
+            "    // fill above parentheses with use case / repository dependencies",
+            "  }",
+            "}",
+            ""
+        ],
+        "create module resource": [
+            "import { Module } from '@nestjs/common';",
+            "import { <FTName | pascalcase>RepositoryModule } from './database/<FTName | paramcase>.repository.module';",
+            "import { <FTName | pascalcase>UseCaseModule } from './use-cases/<FTName | paramcase>.use-case.module';",
+            "import { <FTName | pascalcase>Controller } from './controller/<FTName | paramcase>.controller';",
+            "",
+            "@Module({",
+            "  imports: [<FTName | pascalcase>UseCaseModule, <FTName | pascalcase>RepositoryModule],",
+            "  controllers: [<FTName | pascalcase>Controller],",
+            "})",
+            "export class <FTName | pascalcase>Module {}",
+            ""
+        ]
+    },
+    // folder templates plugin
+    "folderTemplates.structures": [
+        {
+            "name": "Create Resource",
+            "structure": [
+                // 1. creating model
+                {
+                    "fileName": "database/model/<FTName | paramcase>.mongo-entity.ts",
+                    "template": "create-mongo-entity"
+                },
+                // 2. creating entity 
+                {
+                    "fileName": "domain/<FTName | paramcase>.entity.ts",
+                    "template": "create-entity"
+                },
+                // 3. creating mapper
+                {
+                    "fileName": "database/model/<FTName | paramcase>.mongo-mapper.ts",
+                    "template": "create-mapper"
+                },
+                // 4. create repo port
+                {
+                    "fileName": "database/<FTName | paramcase>.repository.port.ts",
+                    "template": "create-port-repository"
+                },
+                // 5. create repo
+                {
+                    "fileName": "database/<FTName | paramcase>.repository.service.ts",
+                    "template": "create-repo"
+                },
+                // 6. create repo provider
+                {
+                    "fileName": "database/<FTName | paramcase>.repository.provider.ts",
+                    "template": "create-provider-repository"
+                },
+                // 7. create repo module
+                {
+                    "fileName": "database/<FTName | paramcase>.repository.module.ts",
+                    "template": "create-module-repository"
+                },
+                // 8. create use-case provider
+                {
+                    "fileName": "use-cases/<FTName | paramcase>.use-case.provider.ts",
+                    "template": "create provider usecase"
+                },
+                // 9. create use-case module
+                {
+                    "fileName": "use-cases/<FTName | paramcase>.use-case.module.ts",
+                    "template": "create module usecase"
+                },
+                // 10. create controller
+                {
+                    "fileName": "controller/<FTName | paramcase>.controller.ts",
+                    "template": "create controller"
+                },
+                // 11. create resource module
+                {
+                    "fileName": "<FTName | paramcase>.module.ts",
+                    "template": "create module resource"
+                }
+            ]
+        }
+    ]
+}
