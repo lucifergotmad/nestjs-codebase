@@ -10,7 +10,8 @@ import { InjectUserRepository } from "../database/user.repository.provider";
 @Injectable()
 export class FindUserById
   extends BaseUseCase
-  implements IUseCase<string, IUserResponse> {
+  implements IUseCase<string, IUserResponse>
+{
   constructor(
     @InjectUserRepository private userRepository: UserRepositoryPort,
   ) {

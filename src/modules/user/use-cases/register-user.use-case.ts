@@ -14,7 +14,8 @@ import { IRepositoryResponse } from "src/core/ports/interfaces/repository-respon
 @Injectable()
 export class RegisterUser
   extends BaseUseCase
-  implements IUseCase<AuthRegisterRequestDTO, IdResponseDTO> {
+  implements IUseCase<AuthRegisterRequestDTO, IdResponseDTO>
+{
   constructor(
     @InjectUserRepository private userRepository: UserRepositoryPort,
     private readonly utils: Utils,

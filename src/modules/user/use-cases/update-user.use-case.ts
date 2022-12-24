@@ -14,7 +14,8 @@ import { InjectUserRepository } from "../database/user.repository.provider";
 @Injectable()
 export class UpdateUser
   extends BaseUseCase
-  implements IUseCase<UpdateUserRequestDTO & IId, MessageResponseDTO> {
+  implements IUseCase<UpdateUserRequestDTO & IId, MessageResponseDTO>
+{
   constructor(
     @InjectUserRepository private userRepository: UserRepositoryPort,
     private readonly utils: Utils,

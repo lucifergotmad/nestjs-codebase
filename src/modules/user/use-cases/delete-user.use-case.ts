@@ -12,7 +12,8 @@ import { InjectUserRepository } from "../database/user.repository.provider";
 @Injectable()
 export class DeleteUser
   extends BaseUseCase
-  implements IUseCase<string, IMessage> {
+  implements IUseCase<string, IMessage>
+{
   constructor(
     @InjectUserRepository private userRepository: UserRepositoryPort,
     private readonly utils: Utils,

@@ -14,7 +14,6 @@ export class Password extends ValueObject<string> {
   }
 
   protected validate({ value }: DomainPrimitive<string>) {
-    // put validation logic here!
     if (Guard.isEmpty(value)) {
       throw new Error("Password tidak boleh kosong!");
     }

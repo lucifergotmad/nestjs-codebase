@@ -11,18 +11,16 @@ import { UserIgnore } from "src/core/constants/encryption/encryption-ignore";
 @Injectable()
 export class UserRepository
   extends BaseRepository<UserMongoEntity, UserEntity>
-  implements UserRepositoryPort {
+  implements UserRepositoryPort
+{
   constructor(
-    @InjectModel(UserMongoEntity.name) private userModel: Model<UserDocument>,
+    @InjectModel(UserMongoEntity.name)
+    private userModel: Model<UserMongoEntity>,
   ) {
     super(
       userModel,
       new UserMongoMapper(UserEntity, UserMongoEntity),
       UserIgnore,
     );
-  }
-
-  async findActiveUser(): Promise<Array<UserMongoEntity>> {
-    return await this.userModel.find({ status: true });
   }
 }

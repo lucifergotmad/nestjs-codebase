@@ -1,5 +1,4 @@
 import { AggregateRoot } from "src/core/base-classes/domain/aggregate-root";
-import { HashUtil } from "src/core/utils/modules/hash/hash.service";
 import { Level } from "./value-objects/level.value-object";
 import { Password } from "./value-objects/password.value-object";
 
@@ -16,8 +15,6 @@ export interface UserFactoryProps
 }
 
 export class UserEntity extends AggregateRoot<IUserProps> {
-  private static hashUtil: HashUtil = new HashUtil();
-
   constructor(props: IUserProps) {
     super(props);
   }

@@ -1,13 +1,82 @@
-import Cryptr from "cryptr";
-
 export class Encryptor {
-  private cryptr: Cryptr;
   private isEncrypt: boolean;
+  private encKey: string;
 
   constructor() {
-    const encKey = process.env.ENCKEY;
+    this.encKey = process.env.ENCKEY;
     this.isEncrypt = !!Number(process.env.ENCRYPTION_MODE);
-    this.cryptr = new Cryptr(encKey);
+  }
+
+  private _encryptascii(str: string) {
+    if (str) {
+      const dataKey: any = {};
+      for (let i = 0; i < this.encKey.length; i++) {
+        dataKey[i] = this.encKey.substring(i, 1);
+      }
+
+      let encryptedString = "";
+      let nkey = 0;
+      const stringLength = str.length;
+
+      for (let i = 0; i < stringLength; i++) {
+        encryptedString =
+          encryptedString +
+          this._hexEncode(str[i].charCodeAt(0) + dataKey[nkey].charCodeAt(0));
+
+        if (nkey === Object.keys(dataKey).length - 1) {
+          nkey = 0;
+        }
+        nkey = nkey + 1;
+      }
+      return encryptedString.toUpperCase();
+    }
+    return true;
+  }
+
+  private _decryptascii(str: string) {
+    if (str) {
+      const dataKey: any = {};
+      for (let i = 0; i < this.encKey.length; i++) {
+        dataKey[i] = this.encKey.substring(i, 1);
+      }
+
+      let decryptedString = "";
+      let nkey = 0;
+      const stringLength = str.length;
+      let i = 0;
+      while (i < stringLength) {
+        decryptedString =
+          decryptedString +
+          this._chr(
+            this._hexDecode(str.substring(i, 2)) - dataKey[nkey].charCodeAt(0),
+          );
+        if (nkey === Object.keys(dataKey).length - 1) {
+          nkey = 0;
+        }
+        nkey = nkey + 1;
+        i = i + 2;
+      }
+      return decryptedString;
+    }
+    return true;
+  }
+
+  private _hexEncode(str: any) {
+    let result = "";
+    result = str.toString(16);
+    return result;
+  }
+
+  private _hexDecode(hex: any) {
+    let str: any = "";
+    str = parseInt(hex, 16);
+    return str;
+  }
+
+  private _chr(asci: any) {
+    let str = "";
+    str = String.fromCharCode(asci);
+    return str;
   }
 
   doEncrypt(dataBeforeCopy: any, ignore: string[] = []) {
@@ -30,7 +99,7 @@ export class Encryptor {
           if (Array.isArray(data[x])) {
             data[x] = data[x].map((y: any) => {
               if (typeof y === "string") {
-                return this.cryptr.encrypt(y);
+                return this._encryptascii(y);
               } else if (
                 typeof data[x] === "object" &&
                 data[x] &&
@@ -42,7 +111,7 @@ export class Encryptor {
             });
           } else {
             if (typeof data[x] === "string" && data[x]) {
-              data[x] = this.cryptr.encrypt(data[x]);
+              data[x] = this._encryptascii(data[x]);
             } else if (typeof data[x] === "number" && data[x]) {
               data[x] = data[x];
             } else if (
@@ -58,7 +127,7 @@ export class Encryptor {
       });
       return data;
     } else if (typeof dataBeforeCopy === "string") {
-      const data = this.cryptr.encrypt(dataBeforeCopy);
+      const data = this._encryptascii(dataBeforeCopy);
       return data;
     }
     return dataBeforeCopy;
@@ -86,7 +155,7 @@ export class Encryptor {
           if (Array.isArray(data[x])) {
             data[x] = data[x].map((y: any) => {
               if (typeof y === "string") {
-                return this.cryptr.decrypt(y);
+                return this._decryptascii(y);
               } else if (
                 typeof data[x] === "object" &&
                 data[x] &&
@@ -98,7 +167,7 @@ export class Encryptor {
             });
           } else {
             if (typeof data[x] === "string" && data[x]) {
-              data[x] = this.cryptr.decrypt(data[x]);
+              data[x] = this._decryptascii(data[x]);
             } else if (typeof data[x] === "number" && data[x]) {
               data[x] = data[x];
             } else if (
@@ -114,7 +183,7 @@ export class Encryptor {
       });
       return data;
     } else if (typeof dataBeforeCopy === "string") {
-      const data = this.cryptr.decrypt(dataBeforeCopy);
+      const data = this._decryptascii(dataBeforeCopy);
       return data;
     }
   }

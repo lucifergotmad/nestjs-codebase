@@ -17,11 +17,11 @@ import { ExceptionConflict } from "src/core/exceptions/conflict.exception";
 import { AdvancePartial } from "src/core/ports/interfaces/advance-partial.interface";
 import { TypeValidator } from "src/core/logic/type";
 import { Encryptor } from "src/services/encryptor.service";
-const encryptor = new Encryptor();
 
 @Injectable()
 export class BaseRepository<MongoEntity, Entity extends BaseEntityProps>
-  implements BaseRepositoryPort<MongoEntity, Entity> {
+  implements BaseRepositoryPort<MongoEntity, Entity>
+{
   constructor(
     private readonly genericModel: Model<MongoEntity>,
     private readonly mapper: DbMapper<Entity, MongoEntity>,
@@ -31,7 +31,7 @@ export class BaseRepository<MongoEntity, Entity extends BaseEntityProps>
 
   async findAll(session?: ClientSession): Promise<Array<MongoEntity>> {
     const result = await this.genericModel.find().session(session).lean();
-    return encryptor.doDecrypt(result, this.ignore);
+    return this.encryptor.doDecrypt(result, this.ignore);
   }
 
   async findOne(
@@ -39,10 +39,10 @@ export class BaseRepository<MongoEntity, Entity extends BaseEntityProps>
     session?: ClientSession,
   ): Promise<MongoEntity> {
     const result = await this.genericModel
-      .findOne(encryptor.doEncrypt(identifier, this.ignore))
+      .findOne(this.encryptor.doEncrypt(identifier, this.ignore))
       .session(session)
       .lean();
-    return encryptor.doDecrypt(result, this.ignore);
+    return this.encryptor.doDecrypt(result, this.ignore);
   }
 
   async findOneOrThrow(
@@ -60,7 +60,7 @@ export class BaseRepository<MongoEntity, Entity extends BaseEntityProps>
     paramThree?: ClientSession,
   ): Promise<MongoEntity> {
     const foundData = await this.genericModel
-      .findOne(encryptor.doEncrypt(identifier, this.ignore))
+      .findOne(this.encryptor.doEncrypt(identifier, this.ignore))
       .session(typeof paramTwo !== "string" ? paramTwo : paramThree)
       .lean();
     if (!foundData) {
@@ -73,7 +73,7 @@ export class BaseRepository<MongoEntity, Entity extends BaseEntityProps>
         this,
       );
     }
-    return encryptor.doDecrypt(foundData, this.ignore);
+    return this.encryptor.doDecrypt(foundData, this.ignore);
   }
 
   async findOneAndThrow(
@@ -91,7 +91,7 @@ export class BaseRepository<MongoEntity, Entity extends BaseEntityProps>
     paramThree?: ClientSession,
   ): Promise<void> {
     const foundData = await this.genericModel
-      .findOne(encryptor.doEncrypt(identifier, this.ignore))
+      .findOne(this.encryptor.doEncrypt(identifier, this.ignore))
       .session(typeof paramTwo !== "string" ? paramTwo : paramThree);
     if (foundData) {
       throw new ExceptionConflict(
@@ -108,17 +108,17 @@ export class BaseRepository<MongoEntity, Entity extends BaseEntityProps>
     session?: ClientSession,
   ): Promise<MongoEntity> {
     const result = await this.genericModel
-      .findOne(encryptor.doEncrypt(identifier, this.ignore))
+      .findOne(this.encryptor.doEncrypt(identifier, this.ignore))
       .sort({ _id: -1 })
       .session(session)
       .lean();
-    return encryptor.doDecrypt(result, this.ignore);
+    return this.encryptor.doDecrypt(result, this.ignore);
   }
 
   async findById(id: string, session?: ClientSession): Promise<MongoEntity> {
     this._validateMongoID(id);
     const result = await this.genericModel.findById(id).session(session).lean();
-    return encryptor.doDecrypt(result, this.ignore);
+    return this.encryptor.doDecrypt(result, this.ignore);
   }
 
   async findBy(
@@ -126,10 +126,12 @@ export class BaseRepository<MongoEntity, Entity extends BaseEntityProps>
     session?: ClientSession,
   ): Promise<Array<MongoEntity>> {
     const result = await this.genericModel
-      .aggregate([{ $match: encryptor.doEncrypt(identifier, this.ignore) }])
+      .aggregate([
+        { $match: this.encryptor.doEncrypt(identifier, this.ignore) },
+      ])
       .session(session);
 
-    return encryptor.doDecrypt(result, this.ignore);
+    return this.encryptor.doDecrypt(result, this.ignore);
   }
 
   async findByPaginated(
@@ -138,11 +140,11 @@ export class BaseRepository<MongoEntity, Entity extends BaseEntityProps>
   ) {
     const { limit = 100, skip = 0 } = paginationMeta;
     const result = await this.genericModel
-      .find(encryptor.doEncrypt(identifier, this.ignore))
+      .find(this.encryptor.doEncrypt(identifier, this.ignore))
       .skip(skip)
       .limit(limit)
       .lean();
-    return encryptor.doDecrypt(result, this.ignore);
+    return this.encryptor.doDecrypt(result, this.ignore);
   }
 
   async count(): Promise<number> {
@@ -151,7 +153,7 @@ export class BaseRepository<MongoEntity, Entity extends BaseEntityProps>
 
   async countBy(identifier: FilterQuery<MongoEntity>): Promise<number> {
     return await this.genericModel
-      .find(encryptor.doEncrypt(identifier, this.ignore))
+      .find(this.encryptor.doEncrypt(identifier, this.ignore))
       .countDocuments();
   }
 
@@ -159,7 +161,7 @@ export class BaseRepository<MongoEntity, Entity extends BaseEntityProps>
     entity: Entity,
     session?: ClientSession,
   ): Promise<IRepositoryResponse> {
-    const mongoEntity = encryptor.doEncrypt(
+    const mongoEntity = this.encryptor.doEncrypt(
       this.mapper.toMongoEntity(entity),
       this.ignore,
     );
@@ -175,7 +177,7 @@ export class BaseRepository<MongoEntity, Entity extends BaseEntityProps>
     const mongoEntities = entities.map((entity) =>
       this.mapper.toMongoEntity(entity),
     );
-    const mongoEntitiesEncrypted = encryptor.doEncrypt(
+    const mongoEntitiesEncrypted = this.encryptor.doEncrypt(
       mongoEntities,
       this.ignore,
     );
@@ -193,8 +195,8 @@ export class BaseRepository<MongoEntity, Entity extends BaseEntityProps>
     if (identifier._id) this._validateMongoID(identifier._id);
 
     const { n } = await this.genericModel.updateMany(
-      encryptor.doEncrypt(identifier, this.ignore),
-      encryptor.doEncrypt(data, this.ignore),
+      this.encryptor.doEncrypt(identifier, this.ignore),
+      this.encryptor.doEncrypt(data, this.ignore),
       {
         session,
       },
@@ -217,8 +219,8 @@ export class BaseRepository<MongoEntity, Entity extends BaseEntityProps>
     if (identifier._id) this._validateMongoID(identifier._id);
 
     const { n } = await this.genericModel.updateMany(
-      encryptor.doEncrypt(identifier, this.ignore),
-      encryptor.doEncrypt(data, this.ignore),
+      this.encryptor.doEncrypt(identifier, this.ignore),
+      this.encryptor.doEncrypt(data, this.ignore),
       {
         session,
       },
@@ -234,7 +236,7 @@ export class BaseRepository<MongoEntity, Entity extends BaseEntityProps>
     if (identifier._id) this._validateMongoID(identifier._id);
 
     const { n } = await this.genericModel.deleteMany(
-      encryptor.doEncrypt(identifier, this.ignore),
+      this.encryptor.doEncrypt(identifier, this.ignore),
       {
         session,
       },
