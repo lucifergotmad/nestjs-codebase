@@ -7,7 +7,7 @@ export class Encryptor {
     this.isEncrypt = !!Number(process.env.ENCRYPTION_MODE);
   }
 
-  private _encryptascii(str: string) {
+  private _encryptASCII(str: string) {
     if (str) {
       const dataKey: any = {};
       for (let i = 0; i < this.encKey.length; i++) {
@@ -33,7 +33,7 @@ export class Encryptor {
     return true;
   }
 
-  private _decryptascii(str: string) {
+  private _decryptASCII(str: string) {
     if (str) {
       const dataKey: any = {};
       for (let i = 0; i < this.encKey.length; i++) {
@@ -61,22 +61,19 @@ export class Encryptor {
     return true;
   }
 
-  private _hexEncode(str: any) {
-    let result = "";
-    result = str.toString(16);
+  private _hexEncode(str: number) {
+    const result = str.toString(16);
     return result;
   }
 
-  private _hexDecode(hex: any) {
-    let str: any = "";
-    str = parseInt(hex, 16);
-    return str;
+  private _hexDecode(hex: string) {
+    const result = parseInt(hex, 16);
+    return result;
   }
 
-  private _chr(asci: any) {
-    let str = "";
-    str = String.fromCharCode(asci);
-    return str;
+  private _chr(asci: number) {
+    const result = String.fromCharCode(asci);
+    return result;
   }
 
   doEncrypt(dataBeforeCopy: any, ignore: string[] = []) {
@@ -99,7 +96,7 @@ export class Encryptor {
           if (Array.isArray(data[x])) {
             data[x] = data[x].map((y: any) => {
               if (typeof y === "string") {
-                return this._encryptascii(y);
+                return this._encryptASCII(y);
               } else if (
                 typeof data[x] === "object" &&
                 data[x] &&
@@ -111,7 +108,7 @@ export class Encryptor {
             });
           } else {
             if (typeof data[x] === "string" && data[x]) {
-              data[x] = this._encryptascii(data[x]);
+              data[x] = this._encryptASCII(data[x]);
             } else if (typeof data[x] === "number" && data[x]) {
               data[x] = data[x];
             } else if (
@@ -127,7 +124,7 @@ export class Encryptor {
       });
       return data;
     } else if (typeof dataBeforeCopy === "string") {
-      const data = this._encryptascii(dataBeforeCopy);
+      const data = this._encryptASCII(dataBeforeCopy);
       return data;
     }
     return dataBeforeCopy;
@@ -155,7 +152,7 @@ export class Encryptor {
           if (Array.isArray(data[x])) {
             data[x] = data[x].map((y: any) => {
               if (typeof y === "string") {
-                return this._decryptascii(y);
+                return this._decryptASCII(y);
               } else if (
                 typeof data[x] === "object" &&
                 data[x] &&
@@ -167,7 +164,7 @@ export class Encryptor {
             });
           } else {
             if (typeof data[x] === "string" && data[x]) {
-              data[x] = this._decryptascii(data[x]);
+              data[x] = this._decryptASCII(data[x]);
             } else if (typeof data[x] === "number" && data[x]) {
               data[x] = data[x];
             } else if (
@@ -183,7 +180,7 @@ export class Encryptor {
       });
       return data;
     } else if (typeof dataBeforeCopy === "string") {
-      const data = this._decryptascii(dataBeforeCopy);
+      const data = this._decryptASCII(dataBeforeCopy);
       return data;
     }
   }
