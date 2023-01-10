@@ -2,7 +2,7 @@ import { IsRequiredString } from "src/core/decorators/dto-decorators/required-st
 
 export class AuthLoginRequestDTO {
   @IsRequiredString({ example: "lucifergotmad" })
-  username: string;
+  username?: string;
 
   @IsRequiredString({ example: "binary1010" })
   password: string;

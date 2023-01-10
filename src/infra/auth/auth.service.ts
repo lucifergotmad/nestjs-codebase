@@ -3,13 +3,13 @@ import { UserMongoEntity } from "src/modules/user/database/model/user.mongo-enti
 import { UserRepository } from "src/modules/user/database/user.repository.service";
 import { Utils } from "src/core/utils/utils.service";
 import { JwtService } from "@nestjs/jwt";
-import { AuthLoginResponseDto } from "src/modules/app/controller/dtos/auth-login.response.dto";
+import { AuthLoginResponseDTO } from "src/modules/app/controller/dtos/auth-login.response.dto";
 import { MessageResponseDTO } from "src/interface-adapter/dtos/message.response.dto";
-import { ExceptionBadRequest } from "src/core/exceptions/bad-request.exception";
 import { EnvService } from "../configs/env.service";
 import { AuthRefreshTokenRequestDTO } from "src/modules/app/controller/dtos/auth-refresh-token.dto";
 import { ExceptionUnauthorize } from "src/core/exceptions/unauthorize.exception";
 import { ResponseException } from "src/core/exceptions/response.http-exception";
+import { AuthLoginRequestDTO } from "src/modules/app/controller/dtos/auth-login.dto";
 
 @Injectable()
 export class AuthService {
@@ -21,7 +21,10 @@ export class AuthService {
   ) {}
 
   async validateUser(username: string, password: string): Promise<any> {
-    const user = await this.userRepository.findOne({ username });
+    const user = await this.userRepository.findOne({
+      $or: [{ username }, { email: username }],
+    });
+
     if (user) {
       const passwordMatch = await this.utils.hash.compare(
         password,
@@ -36,15 +39,18 @@ export class AuthService {
     return null;
   }
 
-  async login(user: Partial<UserMongoEntity>) {
+  async login(body: AuthLoginRequestDTO) {
     try {
+      const user = await this.userRepository.findOne({
+        $or: [{ username: body.username }, { email: body.username }],
+      });
+
       const { access_token, refresh_token } = await this.registerToken(user);
 
-      return new AuthLoginResponseDto({
+      return new AuthLoginResponseDTO({
         accessToken: access_token,
         refreshToken: refresh_token,
         username: user.username,
-        level: user.level,
       });
     } catch (error) {
       throw new ResponseException(error.response, error.status, error.trace);
@@ -58,22 +64,12 @@ export class AuthService {
   }
 
   async registerToken(user: Partial<UserMongoEntity>) {
-    const cacheRegistered = await this.utils.cache.get(user.username);
-
-    if (cacheRegistered)
-      throw new ExceptionBadRequest("User id sedang dipakai!", this);
-
     const payload = { sub: user.username };
     const token = this.jwtService.sign(payload);
     const refreshToken = this.jwtService.sign(payload, {
       expiresIn: 86400,
       secret: this.envService.jwtRefreshKey,
     });
-
-    if (user.username !== "nsi") {
-      await this.utils.cache.set(user.username, true);
-      await this.utils.cache.set(refreshToken, user.username, 86400);
-    }
 
     return { access_token: token, refresh_token: refreshToken };
   }

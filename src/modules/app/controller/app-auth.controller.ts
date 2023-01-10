@@ -12,7 +12,7 @@ import { LocalAuthGuard } from "src/infra/auth/local-auth.guard";
 import { AuthLoginRequestDTO } from "./dtos/auth-login.dto";
 import { AuthRegisterRequestDTO } from "./dtos/auth-register.dto";
 import { IdResponseDTO } from "src/interface-adapter/dtos/id.response.dto";
-import { AuthLoginResponseDto } from "./dtos/auth-login.response.dto";
+import { AuthLoginResponseDTO } from "./dtos/auth-login.response.dto";
 import { HttpStatus } from "src/core/constants/error/status-code.const";
 import { AuthRefreshTokenRequestDTO } from "./dtos/auth-refresh-token.dto";
 
@@ -34,7 +34,7 @@ export class AppController {
   @UseGuards(LocalAuthGuard)
   @Post("auth/login")
   @HttpCode(HttpStatus.OK)
-  @ApiOkResponse({ type: AuthLoginResponseDto })
+  @ApiOkResponse({ type: AuthLoginResponseDTO })
   @ApiUnauthorizedResponse({ description: "Unauthorize User" })
   async login(@Body() body: AuthLoginRequestDTO) {
     return await this.authService.login(body);

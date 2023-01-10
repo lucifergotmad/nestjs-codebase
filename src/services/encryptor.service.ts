@@ -1,83 +1,81 @@
 export class Encryptor {
-  private isEncrypt: boolean;
-  private encKey: string;
+  encryptascii(str: any) {
+    const key = process.env.ENCKEY;
 
-  constructor() {
-    this.encKey = process.env.ENCKEY;
-    this.isEncrypt = !!Number(process.env.ENCRYPTION_MODE);
-  }
-
-  private _encryptASCII(str: string) {
-    if (str) {
-      const dataKey: any = {};
-      for (let i = 0; i < this.encKey.length; i++) {
-        dataKey[i] = this.encKey.substring(i, 1);
-      }
-
-      let encryptedString = "";
-      let nkey = 0;
-      const stringLength = str.length;
-
-      for (let i = 0; i < stringLength; i++) {
-        encryptedString =
-          encryptedString +
-          this._hexEncode(str[i].charCodeAt(0) + dataKey[nkey].charCodeAt(0));
-
-        if (nkey === Object.keys(dataKey).length - 1) {
-          nkey = 0;
-        }
-        nkey = nkey + 1;
-      }
-      return encryptedString.toUpperCase();
+    const dataKey: any = {};
+    for (let i = 0; i < key.length; i++) {
+      dataKey[i] = key.substr(i, 1);
     }
-    return true;
+
+    let strEnc = "";
+    let nkey = 0;
+    const jml = str.length;
+
+    for (let i = 0; i < parseInt(jml); i++) {
+      strEnc =
+        strEnc +
+        this.hexEncode(str[i].charCodeAt(0) + dataKey[nkey].charCodeAt(0));
+
+      if (nkey === Object.keys(dataKey).length - 1) {
+        nkey = 0;
+      }
+      nkey = nkey + 1;
+    }
+    return strEnc.toUpperCase();
   }
 
-  private _decryptASCII(str: string) {
+  decryptascii(str: any) {
     if (str) {
+      const key = process.env.ENCKEY;
       const dataKey: any = {};
-      for (let i = 0; i < this.encKey.length; i++) {
-        dataKey[i] = this.encKey.substring(i, 1);
+      for (let i = 0; i < key.length; i++) {
+        dataKey[i] = key.substr(i, 1);
       }
 
-      let decryptedString = "";
+      let strDec = "";
       let nkey = 0;
-      const stringLength = str.length;
+      const jml = str.length;
       let i = 0;
-      while (i < stringLength) {
-        decryptedString =
-          decryptedString +
-          this._chr(
-            this._hexDecode(str.substring(i, 2)) - dataKey[nkey].charCodeAt(0),
-          );
+      while (i < parseInt(jml)) {
+        strDec =
+          strDec +
+          this.chr(this.hexdec(str.substr(i, 2)) - dataKey[nkey].charCodeAt(0));
         if (nkey === Object.keys(dataKey).length - 1) {
           nkey = 0;
         }
         nkey = nkey + 1;
         i = i + 2;
       }
-      return decryptedString;
+      return strDec;
     }
     return true;
   }
 
-  private _hexEncode(str: number) {
-    const result = str.toString(16);
+  hexEncode(str: any) {
+    let result = "";
+    result = str.toString(16);
     return result;
   }
 
-  private _hexDecode(hex: string) {
-    const result = parseInt(hex, 16);
-    return result;
+  hexdec(hex: any) {
+    let str: any = "";
+    str = parseInt(hex, 16);
+    return str;
   }
 
-  private _chr(asci: number) {
-    const result = String.fromCharCode(asci);
-    return result;
+  chr(asci: any) {
+    let str = "";
+    str = String.fromCharCode(asci);
+    return str;
   }
 
-  doEncrypt(dataBeforeCopy: any, ignore: string[] = []) {
-    if (!this.isEncrypt) {
+  writeLocal(nama: any, data: any) {
+    this.doEncrypt(data, ["kode_baki", "nama_baki", "kode_barang"]);
+    // return localStorage.setItem(nama, encryptascii(JSON.stringify(data)));
+  }
+
+  doEncrypt(dataBeforeCopy: any, ignore: any = []) {
+    if (!Number(process.env.ENCRYPTION_MODE)) {
       return dataBeforeCopy;
     }
     if (!dataBeforeCopy) {
@@ -96,7 +94,7 @@ export class Encryptor {
           if (Array.isArray(data[x])) {
             data[x] = data[x].map((y: any) => {
               if (typeof y === "string") {
-                return this._encryptASCII(y);
+                return this.encryptascii(y);
               } else if (
                 typeof data[x] === "object" &&
                 data[x] &&
@@ -108,9 +106,9 @@ export class Encryptor {
             });
           } else {
             if (typeof data[x] === "string" && data[x]) {
-              data[x] = this._encryptASCII(data[x]);
+              data[x] = this.encryptascii(data[x]);
             } else if (typeof data[x] === "number" && data[x]) {
-              data[x] = data[x];
+              // Call Masking Number
             } else if (
               typeof data[x] === "object" &&
               data[x] &&
@@ -124,14 +122,14 @@ export class Encryptor {
       });
       return data;
     } else if (typeof dataBeforeCopy === "string") {
-      const data = this._encryptASCII(dataBeforeCopy);
+      const data = this.encryptascii(dataBeforeCopy);
       return data;
     }
     return dataBeforeCopy;
   }
 
-  doDecrypt(dataBeforeCopy: any, ignore: string[] = []) {
-    if (!this.isEncrypt) {
+  doDecrypt(dataBeforeCopy: any, ignore: any = []) {
+    if (!Number(process.env.ENCRYPTION_MODE)) {
       return dataBeforeCopy;
     }
 
@@ -152,7 +150,7 @@ export class Encryptor {
           if (Array.isArray(data[x])) {
             data[x] = data[x].map((y: any) => {
               if (typeof y === "string") {
-                return this._decryptASCII(y);
+                return this.decryptascii(y);
               } else if (
                 typeof data[x] === "object" &&
                 data[x] &&
@@ -163,10 +161,11 @@ export class Encryptor {
               return false;
             });
           } else {
+            // Real Encrypt
             if (typeof data[x] === "string" && data[x]) {
-              data[x] = this._decryptASCII(data[x]);
+              data[x] = this.decryptascii(data[x]);
             } else if (typeof data[x] === "number" && data[x]) {
-              data[x] = data[x];
+              // Call Unmasking Number()
             } else if (
               typeof data[x] === "object" &&
               data[x] &&
@@ -180,8 +179,60 @@ export class Encryptor {
       });
       return data;
     } else if (typeof dataBeforeCopy === "string") {
-      const data = this._decryptASCII(dataBeforeCopy);
+      const data = this.decryptascii(dataBeforeCopy);
       return data;
     }
+  }
+
+  doDecryptMiddleware() {
+    return [
+      (req: any, res: any, next: any) => {
+        const isEnc = Number(req.headers.enc || "0");
+        const ignoreFields = JSON.parse(req.headers.ignore || "[]");
+        if (isEnc) {
+          req.body = this.doDecrypt(req.body, ignoreFields);
+          next();
+        } else {
+          next();
+        }
+      },
+    ];
+  }
+
+  maskingNumber(number: any) {
+    const numberString = String(number);
+    const list = numberString.split("");
+    return Number(
+      list
+        .map((data) => {
+          if (data === ".") {
+            return ".";
+          } else {
+            return String(Number(data) + 22);
+          }
+        })
+        .join(""),
+    );
+  }
+
+  unmaskingNumber(number: any) {
+    const numberString = String(number);
+    const list = numberString.split(".");
+    return Number(
+      list
+        .map((data) => {
+          const segment = data.split("").reduce((s, c) => {
+            const l = s.length - 1;
+            s[l] && s[l].length < 2 ? (s[l] += c) : s.push(c);
+            return s;
+          }, []);
+          return segment
+            .map((x) => {
+              return x - 22;
+            })
+            .join("");
+        })
+        .join("."),
+    );
   }
 }

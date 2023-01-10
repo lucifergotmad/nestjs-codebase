@@ -1,17 +1,20 @@
 import { AggregateRoot } from "src/core/base-classes/domain/aggregate-root";
-import { Level } from "./value-objects/level.value-object";
 import { Password } from "./value-objects/password.value-object";
 
-export interface IUserProps {
+export interface IDetailUserProps {
+  weight: number;
+  height: number;
+  age: number;
+  target?: number;
+}
+export interface IUserProps extends IDetailUserProps {
+  email: string;
   username: string;
   password: Password;
-  level: Level;
 }
 
-export interface UserFactoryProps
-  extends Omit<IUserProps, "password" | "level"> {
+export interface UserFactoryProps extends Omit<IUserProps, "password"> {
   password: string;
-  level: string;
 }
 
 export class UserEntity extends AggregateRoot<IUserProps> {
@@ -23,9 +26,13 @@ export class UserEntity extends AggregateRoot<IUserProps> {
     const password = await Password.create(props.password);
 
     return new UserEntity({
+      email: props.email,
       username: props.username,
       password: password,
-      level: new Level(props.level),
+      weight: props.weight,
+      height: props.height,
+      age: props.age,
+      target: props?.target,
     });
   }
 }

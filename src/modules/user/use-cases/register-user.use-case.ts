@@ -8,7 +8,6 @@ import { InjectUserRepository } from "../database/user.repository.provider";
 import { UserEntity } from "../domain/user.entity";
 import { IUseCase } from "src/core/base-classes/interfaces/use-case.interface";
 import { ResponseException } from "src/core/exceptions/response.http-exception";
-import { UserLevel } from "src/core/constants/app/user/user-level.const";
 import { IRepositoryResponse } from "src/core/ports/interfaces/repository-response.interface";
 
 @Injectable()
@@ -29,12 +28,21 @@ export class RegisterUser
 
     try {
       await session.withTransaction(async () => {
-        await this.userRepository.findOneAndThrow({ user_id: user.username });
+        await this.userRepository.findOneAndThrow(
+          {
+            email: user.email,
+            username: user.username,
+          },
+          "Username or Email are already use",
+        );
 
         const userEntity = await UserEntity.create({
           password: user.password,
           username: user.username,
-          level: UserLevel.Owner,
+          email: user.email,
+          weight: user.weight,
+          height: user.height,
+          age: user.age,
         });
 
         result = await this.userRepository.save(userEntity);

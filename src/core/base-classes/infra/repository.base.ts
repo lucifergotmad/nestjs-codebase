@@ -42,6 +42,7 @@ export class BaseRepository<MongoEntity, Entity extends BaseEntityProps>
       .findOne(this.encryptor.doEncrypt(identifier, this.ignore))
       .session(session)
       .lean();
+
     return this.encryptor.doDecrypt(result, this.ignore);
   }
 

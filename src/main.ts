@@ -75,8 +75,8 @@ function generateSecureOption(secure: boolean): NestApplicationOptions {
 
 function generateSwaggerOption(): Omit<OpenAPIObject, "components" | "paths"> {
   return new DocumentBuilder()
-    .setTitle("Nagafin API Documentation")
-    .setDescription("Concise documentation about Nagafin API")
+    .setTitle("YourWeight API Documentation")
+    .setDescription("Concise documentation about YourWeight API")
     .setVersion("1.5")
     .addBearerAuth(
       { type: "http", scheme: "bearer", bearerFormat: "JWT" },

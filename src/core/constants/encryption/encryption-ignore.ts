@@ -1,1 +1,1 @@
-export const UserIgnore = ["_id", "password", "level"];
+export const UserIgnore = ["_id", "password", "email"];
