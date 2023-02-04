@@ -1,5 +1,5 @@
 import { MiddlewareConsumer, Module, NestModule } from "@nestjs/common";
-import { DecryptorMiddleware } from "src/middlewares/decryptor.middleware";
+import { DecryptorMiddleware } from "src/infra/middlewares/decryptor.middleware";
 import { resourceProviders } from "./resource.provider";
 
 @Module({

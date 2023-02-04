@@ -16,7 +16,7 @@ import { ExceptionNotFound } from "src/core/exceptions/not-found.exception";
 import { ExceptionConflict } from "src/core/exceptions/conflict.exception";
 import { AdvancePartial } from "src/core/ports/interfaces/advance-partial.interface";
 import { TypeValidator } from "src/core/logic/type";
-import { Encryptor } from "src/services/encryptor.service";
+import { Encryptor } from "src/infra/services/encryptor.service";
 
 @Injectable()
 export class BaseRepository<MongoEntity, Entity extends BaseEntityProps>
