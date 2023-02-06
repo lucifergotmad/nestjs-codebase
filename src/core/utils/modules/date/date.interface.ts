@@ -1,4 +1,4 @@
 export interface IDateUtil {
-  localDateString(date: Date): string;
-  monthString(date: Date): string;
+  formatDate(dateFormat: string, date?: Date | string): string;
+  getToday(): string;
 }

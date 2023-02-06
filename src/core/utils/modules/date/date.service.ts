@@ -4,20 +4,9 @@ import * as moment from "moment-timezone";
 
 @Injectable()
 export class DateUtil implements IDateUtil {
-  localDateString(date: Date): string {
-    return moment.tz(date, "Asia/Jakarta").format("YYYY-MM-DD");
-  }
-
-  monthString(date: Date): string {
-    return moment.tz(date, "Asia/Jakarta").format("YYYY-MM");
-  }
-
-  yearString(date: Date): string {
-    return moment.tz(date, "Asia/Jakarta").format("YYYY");
-  }
-
-  formatDate(date: Date, dateFormat: string): string {
-    return moment.tz(date, "Asia/Jakarta").format(dateFormat);
+  formatDate(dateFormat: string, date?: Date | string): string {
+    const tanggal = date ? new Date(date) : new Date();
+    return moment.tz(tanggal, "Asia/Jakarta").format(dateFormat);
   }
 
   getToday(): string {
